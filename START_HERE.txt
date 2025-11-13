@@ -1,0 +1,109 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   📚 SCHOLAR SYSTEM - Platform Artikel Ilmiah                ║
+║   Terindeks Google Scholar | Laravel 11 + React + Filament   ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+🚀 INSTALASI CEPAT (5 MENIT):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Install dependencies:
+   $ composer install
+   $ npm install
+
+2. Setup environment:
+   $ cp .env.example .env
+   $ php artisan key:generate
+
+3. Database (SQLite default, auto-create):
+   $ php artisan migrate --seed
+
+4. Storage link:
+   $ php artisan storage:link
+
+5. Build assets (PENTING!):
+   $ npm run build
+
+6. Jalankan aplikasi:
+   Terminal 1: $ php artisan serve
+   Terminal 2: $ npm run dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 AKSES:
+   Frontend: http://localhost:8000
+   Admin:    http://localhost:8000/admin
+
+🔐 LOGIN DEFAULT:
+   Admin: admin@scholar.com / password
+   Dosen: dosen@scholar.com / password
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 DOKUMENTASI LENGKAP:
+   - README.md                  → Overview & quick start
+   - QUICK_START.md             → Panduan 5 menit
+   - CHECKLIST_INSTALASI.md     → Checklist step-by-step
+   - DOKUMENTASI_LENGKAP.md     → Dokumentasi teknis
+   - DEPLOYMENT.md              → Deploy production
+   - PROJECT_SUMMARY.md         → Ringkasan proyek
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ FITUR UTAMA:
+   ✅ Panel admin Filament untuk dosen
+   ✅ Upload PDF artikel + metadata
+   ✅ Daftar referensi ilmiah (DOI)
+   ✅ Komentar nested dengan moderasi
+   ✅ Metadata Google Scholar lengkap
+   ✅ Tampilan modern mirip Alodokter
+   ✅ SEO optimized (sitemap, robots.txt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛠️ TECH STACK:
+   Backend:  Laravel 11 + Filament 3.x
+   Frontend: React 18 + Inertia.js + Tailwind CSS
+   Database: MySQL / SQLite
+   Auth:     Laravel Sanctum
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 CARA PAKAI:
+
+   Untuk Dosen:
+   1. Login ke /admin
+   2. Menu "Artikel" → Create
+   3. Isi form artikel + upload PDF
+   4. Tab "Daftar Referensi" → Tambah referensi
+   5. Publikasikan artikel
+
+   Untuk Pembaca:
+   1. Buka /artikel
+   2. Klik artikel untuk baca
+   3. Login untuk komentar
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING:
+
+   Error: Vite manifest not found
+   → npm run build
+
+   Error: Class 'Inertia' not found
+   → composer require inertiajs/inertia-laravel
+
+   Error: Storage link
+   → php artisan storage:link
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 BUTUH BANTUAN?
+   Baca dokumentasi lengkap di folder ini atau
+   cek file DOKUMENTASI_LENGKAP.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Selamat menggunakan Scholar System! 🎉
+Dibuat dengan ❤️ untuk kemudahan publikasi artikel ilmiah.

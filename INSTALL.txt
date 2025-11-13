@@ -1,0 +1,42 @@
+PANDUAN INSTALASI CEPAT
+========================
+
+1. INSTALL DEPENDENCIES
+   cd scholar-system
+   composer install
+   npm install
+
+2. SETUP ENVIRONMENT
+   cp .env.example .env
+   php artisan key:generate
+   
+   Edit .env sesuaikan database Anda
+
+3. MIGRASI DATABASE
+   php artisan migrate
+
+4. INSTALL FILAMENT & BUAT USER ADMIN
+   composer require filament/filament:"^3.2"
+   php artisan filament:install --panels
+   php artisan make:filament-user
+
+5. STORAGE LINK
+   php artisan storage:link
+
+6. INSTALL SANCTUM
+   composer require laravel/sanctum
+   php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+
+7. INSTALL INERTIA (jika belum)
+   composer require inertiajs/inertia-laravel
+   php artisan inertia:middleware
+
+8. JALANKAN
+   php artisan serve
+   npm run dev
+
+9. AKSES
+   Frontend: http://localhost:8000
+   Admin: http://localhost:8000/admin
+
+SELESAI!
