@@ -18,17 +18,9 @@
             <li>✅ Publikasi artikel dengan metadata lengkap untuk Google Scholar</li>
             <li>✅ Upload PDF artikel dengan referensi ilmiah</li>
             <li>✅ Sistem komentar dan diskusi interaktif</li>
-            <li>✅ Panel admin yang mudah digunakan (Filament)</li>
             <li>✅ Tampilan responsif dan modern</li>
             <li>✅ SEO-optimized untuk mesin pencari</li>
         </ul>
-        
-        <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">Untuk Dosen & Peneliti</h2>
-        <p class="text-gray-700 leading-relaxed">
-            Anda dapat login ke panel admin untuk mengelola artikel, menambahkan referensi, 
-            dan memoderasi komentar. Setiap artikel yang dipublikasikan akan otomatis 
-            memiliki metadata yang sesuai dengan standar Google Scholar.
-        </p>
         
         <h2 class="text-2xl font-semibold text-gray-900 mt-8 mb-4">Kontak</h2>
         <p class="text-gray-700">

@@ -255,7 +255,7 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-gray-900">Punya Pertanyaan?</h3>
-                        <p class="text-sm text-gray-600">Tanya dosen dan dapatkan jawaban</p>
+                        <p class="text-sm text-gray-600">Tanya Ahli dan dapatkan jawaban</p>
                     </div>
                 </div>
                 <a href="/diskusi" class="block w-full text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">

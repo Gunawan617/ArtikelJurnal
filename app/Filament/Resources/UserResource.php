@@ -104,6 +104,18 @@ class UserResource extends Resource
                         'heroicon-o-user' => 'pembaca',
                     ]),
                 
+                Tables\Columns\BadgeColumn::make('is_banned')
+                    ->label('Status')
+                    ->formatStateUsing(fn ($state) => $state ? 'Banned' : 'Aktif')
+                    ->colors([
+                        'danger' => fn ($state) => $state === true,
+                        'success' => fn ($state) => $state === false,
+                    ])
+                    ->icons([
+                        'heroicon-o-no-symbol' => fn ($state) => $state === true,
+                        'heroicon-o-check-circle' => fn ($state) => $state === false,
+                    ]),
+                
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Terdaftar')
                     ->dateTime('d M Y')
@@ -119,6 +131,37 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('ban')
+                    ->label('Ban')
+                    ->icon('heroicon-o-no-symbol')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->form([
+                        Forms\Components\Textarea::make('ban_reason')
+                            ->label('Alasan Ban')
+                            ->required(),
+                    ])
+                    ->action(function (User $record, array $data) {
+                        $record->update([
+                            'is_banned' => true,
+                            'banned_at' => now(),
+                            'ban_reason' => $data['ban_reason'],
+                        ]);
+                    })
+                    ->visible(fn (User $record) => !$record->is_banned),
+                Tables\Actions\Action::make('unban')
+                    ->label('Unban')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function (User $record) {
+                        $record->update([
+                            'is_banned' => false,
+                            'banned_at' => null,
+                            'ban_reason' => null,
+                        ]);
+                    })
+                    ->visible(fn (User $record) => $record->is_banned),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

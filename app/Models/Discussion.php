@@ -15,10 +15,12 @@ class Discussion extends Model
         'related_keywords',
         'replies_count',
         'last_reply_at',
+        'is_closed',
     ];
 
     protected $casts = [
         'last_reply_at' => 'datetime',
+        'is_closed' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -34,5 +36,10 @@ class Discussion extends Model
     public function allReplies(): HasMany
     {
         return $this->hasMany(DiscussionReply::class)->latest();
+    }
+
+    public function reports()
+    {
+        return $this->morphMany(UserReport::class, 'reportable');
     }
 }

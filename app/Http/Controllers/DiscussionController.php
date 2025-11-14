@@ -82,6 +82,11 @@ class DiscussionController extends Controller
     // Simpan diskusi baru
     public function store(Request $request)
     {
+        // Cek apakah user di-ban
+        if (auth()->user()->is_banned) {
+            return back()->with('error', 'Akun Anda telah di-banned. Tidak bisa membuat diskusi.');
+        }
+
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
@@ -109,6 +114,16 @@ class DiscussionController extends Controller
         ]);
 
         $discussion = Discussion::findOrFail($id);
+
+        // Cek apakah diskusi sudah ditutup
+        if ($discussion->is_closed) {
+            return back()->with('error', 'Diskusi ini sudah ditutup. Tidak bisa menambahkan balasan.');
+        }
+
+        // Cek apakah user di-ban
+        if (auth()->user()->is_banned) {
+            return back()->with('error', 'Akun Anda telah di-banned. Tidak bisa menambahkan balasan.');
+        }
 
         $reply = DiscussionReply::create([
             'discussion_id' => $discussion->id,
@@ -155,5 +170,25 @@ class DiscussionController extends Controller
         $discussion->decrement('replies_count');
 
         return back()->with('success', 'Balasan berhasil dihapus!');
+    }
+
+    // Close/Open diskusi (hanya pemilik)
+    public function toggleClose($id)
+    {
+        $discussion = Discussion::findOrFail($id);
+
+        if ($discussion->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $discussion->update([
+            'is_closed' => !$discussion->is_closed
+        ]);
+
+        $message = $discussion->is_closed 
+            ? 'Diskusi berhasil ditutup. Tidak ada yang bisa membalas lagi.' 
+            : 'Diskusi berhasil dibuka kembali.';
+
+        return back()->with('success', $message);
     }
 }

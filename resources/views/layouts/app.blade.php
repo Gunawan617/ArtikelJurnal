@@ -37,33 +37,104 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navbar -->
-    <nav class="bg-white shadow-sm">
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <a href="/" class="text-2xl font-bold text-blue-600">ScholarHub</a>
+                <!-- Logo -->
+                <a href="/" class="text-xl md:text-2xl font-bold text-blue-600">ScholarHub</a>
                 
-                <div class="flex items-center space-x-6">
-                    <a href="/" class="text-gray-700 hover:text-blue-600">Home</a>
-                    <a href="/artikel" class="text-gray-700 hover:text-blue-600">Artikel</a>
-                    <a href="/tentang" class="text-gray-700 hover:text-blue-600">Tentang</a>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 transition">Home</a>
+                    <a href="/artikel" class="text-gray-700 hover:text-blue-600 transition">Artikel</a>
+                    <a href="/diskusi" class="text-gray-700 hover:text-blue-600 transition">Diskusi</a>
+                    <a href="/tentang" class="text-gray-700 hover:text-blue-600 transition">Tentang</a>
                     
                     @auth
-                        <span class="text-gray-600">Halo, {{ auth()->user()->name }}</span>
-                        @if(auth()->user()->role === 'admin')
-                            <a href="/admin" class="text-gray-700 hover:text-blue-600">Admin</a>
-                        @endif
-                        <form action="/logout" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="text-gray-700 hover:text-blue-600">Logout</button>
-                        </form>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition">
+                                <span class="hidden lg:inline">{{ Str::limit(auth()->user()->name, 15) }}</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                                @if(auth()->user()->role === 'admin')
+                                    <a href="/admin" class="block px-4 py-2 text-gray-700 hover:bg-blue-50">Admin Panel</a>
+                                @endif
+                                <form action="/logout" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50">Logout</button>
+                                </form>
+                            </div>
+                        </div>
                     @else
-                        <a href="/login" class="text-gray-700 hover:text-blue-600">Login</a>
-                        <a href="/register" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Daftar</a>
+                        <a href="/login" class="text-gray-700 hover:text-blue-600 transition">Login</a>
+                        <a href="/register" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Daftar</a>
+                    @endauth
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-700 hover:text-blue-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 py-2 border-b border-gray-100">Home</a>
+                    <a href="/artikel" class="text-gray-700 hover:text-blue-600 py-2 border-b border-gray-100">Artikel</a>
+                    <a href="/diskusi" class="text-gray-700 hover:text-blue-600 py-2 border-b border-gray-100">Diskusi</a>
+                    <a href="/tentang" class="text-gray-700 hover:text-blue-600 py-2 border-b border-gray-100">Tentang</a>
+                    
+                    @auth
+                        <div class="pt-2 border-t border-gray-200">
+                            <p class="text-sm text-gray-600 mb-2">{{ auth()->user()->name }}</p>
+                            @if(auth()->user()->role === 'admin')
+                                <a href="/admin" class="block text-gray-700 hover:text-blue-600 py-2">Admin Panel</a>
+                            @endif
+                            <form action="/logout" method="POST">
+                                @csrf
+                                <button type="submit" class="w-full text-left text-gray-700 hover:text-blue-600 py-2">Logout</button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="pt-2 border-t border-gray-200 space-y-2">
+                            <a href="/login" class="block text-center py-2 text-gray-700 hover:text-blue-600 border border-gray-300 rounded-lg">Login</a>
+                            <a href="/register" class="block text-center py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Daftar</a>
+                        </div>
                     @endauth
                 </div>
             </div>
         </div>
     </nav>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+        });
+    </script>
 
     <!-- Content -->
     <main>

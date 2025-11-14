@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Tanya Dosen')
+@section('title', 'Tanya Ahli')
 
 @section('content')
 <div class="bg-white min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Tanya Dosen</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Tanya Ahli</h1>
             <p class="text-gray-600">Punya pertanyaan seputar penelitian atau artikel ilmiah?</p>
         </div>
 
@@ -93,7 +93,12 @@
 
                         <!-- Content -->
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $discussion->title }}</h3>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="text-lg font-bold text-gray-900">{{ $discussion->title }}</h3>
+                                @if($discussion->is_closed)
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">🔒 DITUTUP</span>
+                                @endif
+                            </div>
                             <p class="text-sm text-gray-600 mb-2">Oleh: {{ $discussion->user->name }}</p>
                             
                             @if($discussion->related_keywords)

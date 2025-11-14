@@ -34,4 +34,9 @@ class DiscussionReply extends Model
     {
         return $this->hasMany(DiscussionReply::class, 'parent_id')->latest();
     }
+
+    public function reports()
+    {
+        return $this->morphMany(UserReport::class, 'reportable');
+    }
 }

@@ -171,14 +171,19 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
 // Discussion routes
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\UserReportController;
 
 Route::get('/diskusi', [DiscussionController::class, 'index'])->name('discussions.index');
 Route::get('/diskusi/buat', [DiscussionController::class, 'create'])->name('discussions.create')->middleware('auth');
 Route::post('/diskusi', [DiscussionController::class, 'store'])->name('discussions.store')->middleware('auth');
 Route::get('/diskusi/{id}', [DiscussionController::class, 'show'])->name('discussions.show');
 Route::post('/diskusi/{id}/balas', [DiscussionController::class, 'reply'])->name('discussions.reply')->middleware('auth');
+Route::post('/diskusi/{id}/toggle-close', [DiscussionController::class, 'toggleClose'])->name('discussions.toggle-close')->middleware('auth');
 Route::delete('/diskusi/{id}', [DiscussionController::class, 'destroy'])->name('discussions.destroy')->middleware('auth');
 Route::delete('/diskusi/balasan/{id}', [DiscussionController::class, 'destroyReply'])->name('discussions.reply.destroy')->middleware('auth');
+
+// Report routes
+Route::post('/report', [UserReportController::class, 'store'])->name('report.store')->middleware('auth');
 
 // Diskusi terkait artikel
 Route::get('/artikel/{slug}/diskusi', [DiscussionController::class, 'articleDiscussions'])->name('articles.discussions');
