@@ -154,6 +154,15 @@ if ($article->image_path) {
                             </div>
                         </div>
 
+                        <!-- Abstract Section -->
+                        @if($article->abstract)
+                            <div class="mb-6">
+                                <p class="text-gray-700 leading-relaxed text-base md:text-lg font-normal">
+                                    {{ $article->abstract }}
+                                </p>
+                            </div>
+                        @endif
+
                         <!-- Featured Image -->
                         @if($article->image_path)
                             <div class="mb-6">
@@ -181,13 +190,18 @@ if ($article->image_path) {
                             </div>
                         @endif
 
-                        <!-- Author Info -->
-                        <div class="mb-6 pb-6 border-b border-gray-200">
-                            <div class="text-sm text-gray-600 mb-1">Ditinjau oleh:</div>
-                            <h3 class="font-bold text-base text-gray-900">
-                                {{ $article->author }}
-                            </h3>
-                        </div>
+                        <!-- Reviewer Info -->
+                        @if($article->reviewer_name)
+                            <div class="mb-6 pb-6 border-b border-gray-200">
+                                <div class="text-sm text-gray-600 mb-1">Ditinjau oleh:</div>
+                                <h3 class="font-bold text-base text-gray-900">
+                                    {{ $article->reviewer_name }}
+                                    @if($article->reviewer_title)
+                                        <span class="font-normal text-gray-600">, {{ $article->reviewer_title }}</span>
+                                    @endif
+                                </h3>
+                            </div>
+                        @endif
 
                         <!-- References (Collapsible) -->
                         @if($article->references->count() > 0)

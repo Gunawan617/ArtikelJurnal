@@ -53,6 +53,16 @@ Route::get('/artikel', function (Request $request) {
         $baseQuery->where('category', $request->category);
     }
     
+    // Search functionality
+    $searchQuery = $request->input('search');
+    if ($searchQuery && strlen($searchQuery) >= 3) {
+        $baseQuery->where(function($query) use ($searchQuery) {
+            $query->where('title', 'LIKE', '%' . $searchQuery . '%')
+                  ->orWhere('abstract', 'LIKE', '%' . $searchQuery . '%')
+                  ->orWhere('content', 'LIKE', '%' . $searchQuery . '%');
+        });
+    }
+    
     // 1. Top Article (Trending/Hot) - Artikel dengan engagement tertinggi dalam 30 hari terakhir
     $topArticle = (clone $baseQuery)
         ->where('updated_at', '>=', now()->subDays(30))
@@ -87,9 +97,16 @@ Route::get('/artikel', function (Request $request) {
     $articles = (clone $baseQuery)
         ->whereNotIn('id', $excludeIds)
         ->latest('published_at')
-        ->paginate(9); // 9 artikel untuk grid (3x3)
+        ->paginate(9) // 9 artikel untuk grid (3x3)
+        ->appends($request->only(['search', 'category'])); // Preserve search & category in pagination
     
-    return view('articles.index', compact('topArticle', 'recentArticles', 'articles'));
+    // Count total results for search
+    $totalResults = null;
+    if ($searchQuery && strlen($searchQuery) >= 3) {
+        $totalResults = (clone $baseQuery)->count();
+    }
+    
+    return view('articles.index', compact('topArticle', 'recentArticles', 'articles', 'searchQuery', 'totalResults'));
 });
 
 Route::get('/artikel/{slug}', function ($slug) {

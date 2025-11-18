@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<div class="bg-gray-50 min-h-screen">
+<div class="bg-white min-h-screen">
     <div class="max-w-6xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
         <div class="mb-6 text-sm text-gray-600">
@@ -27,6 +27,74 @@
             @endif
         </div>
 
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <form action="/artikel" method="GET" class="relative">
+                @if(request('category'))
+                    <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
+                
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="searchInput"
+                        value="{{ request('search') }}" 
+                        placeholder="Cari artikel berdasarkan judul atau konten..."
+                        class="w-full pl-12 pr-24 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        minlength="3"
+                    >
+                    
+                    @if(request('search'))
+                        <a href="/artikel{{ request('category') ? '?category=' . request('category') : '' }}" 
+                           class="absolute inset-y-0 right-20 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </a>
+                    @endif
+                    
+                    <button 
+                        type="submit" 
+                        class="absolute inset-y-0 right-0 px-6 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition font-medium"
+                    >
+                        Cari
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Search Results Info -->
+            @if(request('search') && strlen(request('search')) >= 3)
+                <div class="mt-3 flex items-center justify-between">
+                    <div class="text-sm">
+                        @if($totalResults > 0)
+                            <span class="text-green-600 font-medium">✓ Ditemukan {{ $totalResults }} artikel untuk "</span>
+                            <span class="font-bold text-gray-900">{{ request('search') }}</span>
+                            <span class="text-green-600 font-medium">"</span>
+                        @else
+                            <span class="text-red-600 font-medium">✗ Tidak ditemukan artikel untuk "</span>
+                            <span class="font-bold text-gray-900">{{ request('search') }}</span>
+                            <span class="text-red-600 font-medium">"</span>
+                        @endif
+                    </div>
+                    <a href="/artikel{{ request('category') ? '?category=' . request('category') : '' }}" 
+                       class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        Hapus pencarian
+                    </a>
+                </div>
+            @elseif(request('search') && strlen(request('search')) < 3)
+                <div class="mt-3 text-sm text-amber-600">
+                    ⚠ Minimal 3 karakter untuk pencarian
+                </div>
+            @endif
+        </div>
+
         <!-- Category Tabs -->
         <div class="flex gap-3 mb-8 overflow-x-auto pb-2">
             @php
@@ -34,12 +102,13 @@
                     ->select('category')
                     ->distinct()
                     ->pluck('category');
+                $searchParam = request('search') ? '&search=' . urlencode(request('search')) : '';
             @endphp
-            <a href="/artikel" class="px-4 py-2 {{ !request('category') ? 'bg-blue-600 text-white' : 'bg-white text-gray-700' }} rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition shadow-sm">
+            <a href="/artikel{{ request('search') ? '?search=' . urlencode(request('search')) : '' }}" class="px-4 py-2 {{ !request('category') ? 'bg-blue-600 text-white' : 'bg-white text-gray-700' }} rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition shadow-sm">
                 Semua
             </a>
             @foreach($categories as $cat)
-                <a href="/artikel?category={{ $cat }}" class="px-4 py-2 {{ request('category') == $cat ? 'bg-blue-600 text-white' : 'bg-white text-gray-700' }} rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition shadow-sm">
+                <a href="/artikel?category={{ $cat }}{{ $searchParam }}" class="px-4 py-2 {{ request('category') == $cat ? 'bg-blue-600 text-white' : 'bg-white text-gray-700' }} rounded-full whitespace-nowrap hover:bg-blue-500 hover:text-white transition shadow-sm">
                     {{ $cat }}
                 </a>
             @endforeach
@@ -50,7 +119,7 @@
             <div class="mb-12">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">
                     <span class="inline-flex items-center gap-2">
-                        🔥 Trending
+                        Top
                         <span class="text-sm font-normal text-gray-500">(Paling banyak dibaca 30 hari terakhir)</span>
                     </span>
                 </h2>
