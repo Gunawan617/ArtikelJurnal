@@ -56,6 +56,8 @@ npm run dev
 - Email: `admin@scholar.com`
 - Password: `password`
 
+passwd:admin123
+
 ### Login Dosen:
 - Email: `dosen@scholar.com`
 - Password: `password`

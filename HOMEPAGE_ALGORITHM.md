@@ -4,7 +4,7 @@
 
 Sistem menggunakan **hybrid algorithm** yang menggabungkan:
 1. Manual curation (featured flag)
-2. Popularity metrics (views, comments)
+2. Popularity metrics (views)
 3. Freshness (artikel baru/update)
 4. Engagement (diskusi, sitasi)
 
@@ -25,11 +25,11 @@ LIMIT 1
 
 #### Priority 2: Auto Featured (jika tidak ada manual)
 ```sql
-Score = (comments_count * 2) + (freshness_bonus) - (age_penalty)
+Score = (views_count * 0.1) + (freshness_bonus) - (age_penalty)
 ```
 
 **Formula:**
-- **Comments**: +2 points per comment
+- **Views**: +0.1 points per view
 - **Freshness**: 
   - < 7 hari: +10 points
   - < 30 hari: +5 points
@@ -42,7 +42,7 @@ Score = (comments_count * 2) + (freshness_bonus) - (age_penalty)
 
 ```sql
 SELECT *, 
-  (comments_count * 2 + freshness_bonus) as popularity_score
+  (views_count * 0.1 + freshness_bonus) as popularity_score
 FROM articles
 WHERE is_published = true
   AND id != featured_article_id
@@ -51,7 +51,7 @@ LIMIT 4
 ```
 
 **Ranking Factors:**
-1. **Engagement** (40%): Comments, diskusi
+1. **Views** (40%): Total pembaca artikel
 2. **Freshness** (30%): Update terbaru
 3. **Recency** (30%): Tanggal publikasi
 
@@ -80,10 +80,10 @@ Artikel baru otomatis dapat +10 freshness bonus
 Kemungkinan besar muncul di homepage (jika berkualitas)
 ```
 
-### Scenario 4: Artikel Viral (Banyak Komentar)
+### Scenario 4: Artikel Viral (Banyak Views)
 ```
-Artikel dengan 10+ komentar:
-Score = 10 * 2 = 20 points
+Artikel dengan 100+ views:
+Score = 100 * 0.1 = 10 points
 Otomatis naik ke top 5
 ```
 
@@ -91,39 +91,39 @@ Otomatis naik ke top 5
 
 ## 📈 Contoh Perhitungan Score
 
-### Artikel A (Baru, Sedikit Engagement)
+### Artikel A (Baru, Sedikit Views)
 ```
 Published: 2 hari lalu
-Comments: 1
+Views: 10
 Updated: 2 hari lalu
 
-Score = (1 * 2) + 10 + (2 * -0.1)
-      = 2 + 10 - 0.2
-      = 11.8 points
+Score = (10 * 0.1) + 10 + (2 * -0.1)
+      = 1 + 10 - 0.2
+      = 10.8 points
 ```
 
-### Artikel B (Lama, Banyak Engagement)
+### Artikel B (Lama, Banyak Views)
 ```
 Published: 60 hari lalu
-Comments: 15
+Views: 150
 Updated: 60 hari lalu
 
-Score = (15 * 2) + 0 + (60 * -0.1)
-      = 30 + 0 - 6
-      = 24 points
+Score = (150 * 0.1) + 0 + (60 * -0.1)
+      = 15 + 0 - 6
+      = 9 points
 ```
 
-**Winner: Artikel B** (Engagement > Freshness)
+**Winner: Artikel A** (Freshness + Views balance)
 
-### Artikel C (Baru Diupdate, Medium Engagement)
+### Artikel C (Baru Diupdate, Medium Views)
 ```
 Published: 90 hari lalu
-Comments: 5
+Views: 50
 Updated: 3 hari lalu (FRESH!)
 
-Score = (5 * 2) + 10 + (3 * -0.1)
-      = 10 + 10 - 0.3
-      = 19.7 points
+Score = (50 * 0.1) + 10 + (3 * -0.1)
+      = 5 + 10 - 0.3
+      = 14.7 points
 ```
 
 ---
@@ -132,7 +132,7 @@ Score = (5 * 2) + 10 + (3 * -0.1)
 
 ### Current Settings:
 ```php
-COMMENT_WEIGHT = 2        // Setiap komentar = 2 points
+VIEW_WEIGHT = 0.1         // Setiap view = 0.1 points
 FRESH_BONUS_7D = 10       // Update < 7 hari = +10
 FRESH_BONUS_30D = 5       // Update < 30 hari = +5
 AGE_PENALTY = -0.1        // Per hari = -0.1
@@ -142,7 +142,7 @@ AGE_PENALTY = -0.1        // Per hari = -0.1
 
 **Untuk Platform Baru (Butuh Konten Fresh):**
 ```php
-COMMENT_WEIGHT = 1
+VIEW_WEIGHT = 0.05
 FRESH_BONUS_7D = 20  // Prioritas freshness
 FRESH_BONUS_30D = 10
 AGE_PENALTY = -0.2
@@ -150,7 +150,7 @@ AGE_PENALTY = -0.2
 
 **Untuk Platform Mature (Prioritas Quality):**
 ```php
-COMMENT_WEIGHT = 3   // Prioritas engagement
+VIEW_WEIGHT = 0.2   // Prioritas views
 FRESH_BONUS_7D = 5
 FRESH_BONUS_30D = 2
 AGE_PENALTY = -0.05
@@ -214,10 +214,16 @@ $trending = Article::where('created_at', '>', now()->subDay())
 - **Scroll Depth**: Seberapa jauh user scroll
 
 ### Article Performance:
-- **Views**: Total pembaca
+- **Views**: Total pembaca (tracked automatically)
 - **Comments**: Total komentar
 - **Shares**: Total share (future)
 - **Citations**: Total sitasi (Google Scholar)
+
+### View Tracking:
+- **Method**: IP-based throttling
+- **Throttle**: 1 view per IP per artikel per 24 jam
+- **Visibility**: Admin only (tidak ditampilkan di frontend)
+- **Purpose**: Fair ranking tanpa bias engagement aktif
 
 ---
 

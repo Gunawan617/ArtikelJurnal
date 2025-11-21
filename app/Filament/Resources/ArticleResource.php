@@ -30,20 +30,20 @@ class ArticleResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('slug', \Str::slug($state))),
-                
+                    ->afterStateUpdated(fn($state, Forms\Set $set) => $set('slug', \Str::slug($state))),
+
                 Forms\Components\TextInput::make('slug')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                
+
                 Forms\Components\Grid::make(2)->schema([
                     Forms\Components\TextInput::make('category')
                         ->label('Kategori')
                         ->default('ARTIKEL ILMIAH')
                         ->required()
                         ->helperText('Contoh: ARTIKEL ILMIAH, PENELITIAN, REVIEW, dll'),
-                    
+
                     Forms\Components\Select::make('category_color')
                         ->label('Warna Badge')
                         ->options([
@@ -57,19 +57,19 @@ class ArticleResource extends Resource
                         ->default('orange')
                         ->required(),
                 ]),
-                
+
                 Forms\Components\Section::make('Informasi Penulis')->schema([
                     Forms\Components\TextInput::make('author')
                         ->label('Nama Penulis')
                         ->required()
                         ->maxLength(255)
                         ->helperText('Nama lengkap penulis artikel'),
-                    
+
                     Forms\Components\TextInput::make('author_institution')
                         ->label('Institusi Penulis')
                         ->placeholder('Universitas / Lembaga')
                         ->maxLength(255),
-                    
+
                     Forms\Components\FileUpload::make('author_photo')
                         ->label('Foto Penulis')
                         ->image()
@@ -79,20 +79,20 @@ class ArticleResource extends Resource
                         ->helperText('Upload foto penulis artikel (Max 2MB)')
                         ->columnSpanFull(),
                 ])->collapsible(),
-                
+
                 Forms\Components\Section::make('Ditinjau Oleh')->schema([
                     Forms\Components\TextInput::make('reviewer_name')
                         ->label('Nama Peninjau')
                         ->maxLength(255)
                         ->helperText('Reviewer yang meninjau artikel'),
                 ])->collapsible(),
-                
+
                 Forms\Components\Textarea::make('abstract')
                     ->label('Abstrak / Ringkasan')
                     ->required()
                     ->rows(3)
                     ->helperText('Ringkasan singkat untuk preview'),
-                
+
                 Forms\Components\RichEditor::make('content')
                     ->label('Konten Artikel')
                     ->required()
@@ -111,7 +111,7 @@ class ArticleResource extends Resource
                         'redo',
                     ])
                     ->columnSpanFull(),
-                
+
                 Forms\Components\TextInput::make('keywords')
                     ->label('Kata Kunci')
                     ->required()
@@ -126,7 +126,7 @@ class ArticleResource extends Resource
                     ->directory('articles/pdfs')
                     ->maxSize(10240)
                     ->helperText('Max 10MB'),
-                
+
                 Forms\Components\FileUpload::make('image_path')
                     ->label('Gambar Artikel')
                     ->image()
@@ -134,10 +134,10 @@ class ArticleResource extends Resource
                     ->directory('articles/images')
                     ->maxSize(2048)
                     ->helperText('Max 2MB'),
-                
+
                 Forms\Components\DateTimePicker::make('published_at')
                     ->label('Tanggal Publikasi'),
-                
+
                 Forms\Components\Toggle::make('is_published')
                     ->label('Publikasikan')
                     ->default(false),
@@ -151,6 +151,7 @@ class ArticleResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')->label('Judul')->searchable()->limit(50),
                 Tables\Columns\TextColumn::make('author')->label('Penulis')->searchable(),
+                Tables\Columns\TextColumn::make('views_count')->label('Views')->sortable()->numeric(),
                 Tables\Columns\IconColumn::make('is_published')->label('Published')->boolean(),
                 Tables\Columns\TextColumn::make('published_at')->label('Tanggal')->date(),
             ])
@@ -177,20 +178,20 @@ class ArticleResource extends Resource
                             ->label('Judul')
                             ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
                             ->weight('bold'),
-                        
+
                         Infolists\Components\TextEntry::make('slug')
                             ->label('Slug')
                             ->copyable()
                             ->badge()
                             ->color('gray'),
-                        
+
                         Infolists\Components\Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('category')
                                     ->label('Kategori')
                                     ->badge()
-                                    ->color(fn ($record) => $record->category_color ?? 'gray'),
-                                
+                                    ->color(fn($record) => $record->category_color ?? 'gray'),
+
                                 Infolists\Components\IconEntry::make('is_published')
                                     ->label('Status Publikasi')
                                     ->boolean()
@@ -199,14 +200,14 @@ class ArticleResource extends Resource
                                     ->trueColor('success')
                                     ->falseColor('danger'),
                             ]),
-                        
+
                         Infolists\Components\TextEntry::make('published_at')
                             ->label('Tanggal Publikasi')
                             ->dateTime('d F Y, H:i')
                             ->placeholder('Belum dipublikasikan'),
                     ])
                     ->columns(1),
-                
+
                 Infolists\Components\Section::make('Informasi Penulis')
                     ->schema([
                         Infolists\Components\ImageEntry::make('author_photo')
@@ -215,16 +216,16 @@ class ArticleResource extends Resource
                             ->height(100)
                             ->defaultImageUrl(url('/images/default-avatar.jpg'))
                             ->columnSpanFull(),
-                        
+
                         Infolists\Components\TextEntry::make('author')
                             ->label('Nama Penulis')
                             ->icon('heroicon-o-user'),
-                        
+
                         Infolists\Components\TextEntry::make('author_institution')
                             ->label('Institusi')
                             ->placeholder('Tidak ada')
                             ->icon('heroicon-o-building-office'),
-                        
+
                         Infolists\Components\TextEntry::make('reviewer_name')
                             ->label('Ditinjau Oleh')
                             ->placeholder('Tidak ada reviewer')
@@ -232,20 +233,20 @@ class ArticleResource extends Resource
                     ])
                     ->columns(2)
                     ->collapsible(),
-                
+
                 Infolists\Components\Section::make('Konten')
                     ->schema([
                         Infolists\Components\TextEntry::make('abstract')
                             ->label('Abstrak')
                             ->prose()
                             ->columnSpanFull(),
-                        
+
                         Infolists\Components\TextEntry::make('content')
                             ->label('Konten Artikel')
                             ->html()
                             ->prose()
                             ->columnSpanFull(),
-                        
+
                         Infolists\Components\TextEntry::make('keywords')
                             ->label('Kata Kunci')
                             ->badge()
@@ -253,7 +254,7 @@ class ArticleResource extends Resource
                             ->color('info'),
                     ])
                     ->collapsible(),
-                
+
                 Infolists\Components\Section::make('File & Media')
                     ->schema([
                         Infolists\Components\ImageEntry::make('image_path')
@@ -261,25 +262,31 @@ class ArticleResource extends Resource
                             ->height(200)
                             ->defaultImageUrl(url('/images/default-article.jpg'))
                             ->columnSpanFull(),
-                        
+
                         Infolists\Components\TextEntry::make('pdf_path')
                             ->label('File PDF')
-                            ->formatStateUsing(fn ($state) => $state ? 'PDF tersedia' : 'Tidak ada PDF')
+                            ->formatStateUsing(fn($state) => $state ? 'PDF tersedia' : 'Tidak ada PDF')
                             ->badge()
-                            ->color(fn ($state) => $state ? 'success' : 'gray')
-                            ->url(fn ($record) => $record->pdf_path ? asset('storage/' . $record->pdf_path) : null)
+                            ->color(fn($state) => $state ? 'success' : 'gray')
+                            ->url(fn($record) => $record->pdf_path ? asset('storage/' . $record->pdf_path) : null)
                             ->openUrlInNewTab()
-                            ->icon(fn ($state) => $state ? 'heroicon-o-document-arrow-down' : 'heroicon-o-document'),
+                            ->icon(fn($state) => $state ? 'heroicon-o-document-arrow-down' : 'heroicon-o-document'),
                     ])
                     ->columns(1)
                     ->collapsible(),
-                
+
                 Infolists\Components\Section::make('Metadata')
                     ->schema([
+                        Infolists\Components\TextEntry::make('views_count')
+                            ->label('Total Views')
+                            ->numeric()
+                            ->icon('heroicon-o-eye')
+                            ->color('info'),
+
                         Infolists\Components\TextEntry::make('created_at')
                             ->label('Dibuat')
                             ->dateTime('d F Y, H:i'),
-                        
+
                         Infolists\Components\TextEntry::make('updated_at')
                             ->label('Terakhir Diupdate')
                             ->dateTime('d F Y, H:i')

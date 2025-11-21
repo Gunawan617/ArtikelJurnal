@@ -31,21 +31,19 @@ Article::where('is_published', true)
 **Prioritas 2: Smart Algorithm (Jika tidak ada featured manual)**
 ```php
 Article::where('is_published', true)
-    ->withCount('comments')
-    ->orderByRaw('(comments_count * 2) + (DATEDIFF(NOW(), published_at) * -0.1) DESC')
+    ->orderByRaw('(views_count * 0.1) + (DATEDIFF(NOW(), published_at) * -0.1) DESC')
     ->first();
 ```
-- Artikel dengan **komentar terbanyak** mendapat prioritas
+- Artikel dengan **views terbanyak** mendapat prioritas
 - Artikel baru mendapat sedikit boost
-- Formula: `(jumlah_komentar × 2) - (umur_artikel × 0.1)`
+- Formula: `(jumlah_views × 0.1) - (umur_artikel × 0.1)`
 
 #### 2. Artikel Grid (4 Artikel Kecil)
 ```php
 Article::where('is_published', true)
     ->where('id', '!=', $featuredArticle?->id)
-    ->withCount('comments')
     ->selectRaw('(
-        (SELECT COUNT(*) FROM comments WHERE article_id = articles.id) * 2 +
+        views_count * 0.1 +
         (CASE 
             WHEN DATEDIFF(NOW(), updated_at) < 7 THEN 10
             WHEN DATEDIFF(NOW(), updated_at) < 30 THEN 5
@@ -59,21 +57,21 @@ Article::where('is_published', true)
 ```
 
 **Popularity Score Formula:**
-- Jumlah komentar × 2
+- Jumlah views × 0.1
 - Artikel < 7 hari: +10 poin
 - Artikel < 30 hari: +5 poin
 - Artikel > 30 hari: +0 poin
 
 **Contoh Perhitungan:**
 ```
-Artikel A: 5 komentar, 3 hari yang lalu
-Score = (5 × 2) + 10 = 20 poin
+Artikel A: 50 views, 3 hari yang lalu
+Score = (50 × 0.1) + 10 = 15 poin
 
-Artikel B: 10 komentar, 45 hari yang lalu
-Score = (10 × 2) + 0 = 20 poin
+Artikel B: 100 views, 45 hari yang lalu
+Score = (100 × 0.1) + 0 = 10 poin
 
-Artikel C: 3 komentar, 2 hari yang lalu
-Score = (3 × 2) + 10 = 16 poin
+Artikel C: 30 views, 2 hari yang lalu
+Score = (30 × 0.1) + 10 = 13 poin
 ```
 
 ### Kapan Artikel Berubah?
@@ -100,9 +98,8 @@ Halaman artikel menampilkan artikel dengan layout:
 ```php
 Article::where('is_published', true)
     ->where('updated_at', '>=', now()->subDays(30))
-    ->withCount('comments')
     ->selectRaw('articles.*, (
-        (SELECT COUNT(*) FROM comments WHERE article_id = articles.id) * 3 +
+        views_count * 0.2 +
         (CASE 
             WHEN DATEDIFF(NOW(), updated_at) < 7 THEN 15
             WHEN DATEDIFF(NOW(), updated_at) < 14 THEN 10
@@ -115,7 +112,7 @@ Article::where('is_published', true)
 ```
 
 **Engagement Score Formula:**
-- Jumlah komentar × 3
+- Jumlah views × 0.2
 - Artikel < 7 hari: +15 poin
 - Artikel < 14 hari: +10 poin
 - Artikel < 30 hari: +5 poin
@@ -123,14 +120,14 @@ Article::where('is_published', true)
 
 **Contoh Perhitungan:**
 ```
-Artikel A: 8 komentar, 5 hari yang lalu
-Score = (8 × 3) + 15 = 39 poin ⭐ TRENDING
+Artikel A: 80 views, 5 hari yang lalu
+Score = (80 × 0.2) + 15 = 31 poin ⭐ TRENDING
 
-Artikel B: 15 komentar, 60 hari yang lalu
+Artikel B: 150 views, 60 hari yang lalu
 Score = Tidak masuk (> 30 hari)
 
-Artikel C: 4 komentar, 20 hari yang lalu
-Score = (4 × 3) + 5 = 17 poin
+Artikel C: 40 views, 20 hari yang lalu
+Score = (40 × 0.2) + 5 = 13 poin
 ```
 
 #### 2. Artikel Terbaru (Kanan List) 📰
@@ -176,7 +173,7 @@ if ($request->has('category') && $request->category) {
 |-------|----------|-----------------|
 | **Fokus** | Artikel populer & featured | Artikel trending & terbaru |
 | **Timeframe** | Semua waktu | 30 hari terakhir |
-| **Bobot Komentar** | × 2 | × 3 |
+| **Bobot Views** | × 0.1 | × 0.2 |
 | **Bobot Freshness** | Rendah | Tinggi |
 | **Jumlah Artikel** | 5 artikel | 13 artikel (1+3+9) |
 | **Update** | Setiap refresh | Setiap refresh |
@@ -254,8 +251,16 @@ public function article()
 Untuk membuat artikel muncul di homepage atau trending:
 - ✅ Publikasikan artikel baru (dapat boost freshness)
 - ✅ Update artikel lama (refresh `updated_at`)
-- ✅ Dorong user untuk berkomentar
+- ✅ Promosikan artikel untuk meningkatkan views
 - ✅ Tandai sebagai featured (untuk homepage)
+
+### 2. View Tracking
+Sistem tracking views:
+- **Method**: IP-based throttling
+- **Throttle**: 1 view per IP per artikel per 24 jam
+- **Storage**: Laravel cache
+- **Visibility**: Admin only (tidak ditampilkan di frontend)
+- **Purpose**: Ranking yang fair tanpa bias engagement aktif
 
 ### 2. Cache (Opsional)
 Untuk website dengan traffic tinggi, pertimbangkan caching:
@@ -281,6 +286,12 @@ CREATE INDEX idx_comments_article ON comments(article_id);
 ---
 
 ## 📝 Changelog
+
+### Version 1.1 (21 November 2025)
+- ✅ Migrasi dari comments-based ke views-based ranking
+- ✅ Implementasi IP-based view tracking dengan throttling 24 jam
+- ✅ Views hanya visible untuk admin (fairness)
+- ✅ Adjusted weights: views × 0.1 (homepage), × 0.2 (artikel page)
 
 ### Version 1.0 (13 November 2025)
 - ✅ Implementasi smart algorithm untuk homepage

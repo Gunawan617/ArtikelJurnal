@@ -8,29 +8,27 @@ use App\Http\Controllers\SitemapController;
 
 Route::get('/', function (Request $request) {
     // Smart Algorithm untuk Homepage
-    
+
     // 1. Featured Article (Manual atau berdasarkan score tertinggi)
     $featuredArticle = Article::where('is_published', true)
         ->where('is_featured', true)
         ->latest('published_at')
         ->first();
-    
+
     // Jika tidak ada featured manual, pilih artikel dengan score tertinggi
     if (!$featuredArticle) {
         $featuredArticle = Article::where('is_published', true)
-            ->withCount('comments')
-            ->orderByRaw('(comments_count * 2) + (DATEDIFF(NOW(), published_at) * -0.1) DESC')
+            ->orderByRaw('(views_count * 0.1) + (DATEDIFF(NOW(), published_at) * -0.1) DESC')
             ->first();
     }
-    
+
     // 2. Artikel lainnya (Smart Ranking)
     $articles = Article::where('is_published', true)
         ->where('id', '!=', $featuredArticle?->id)
-        ->withCount('comments')
         ->select('articles.*')
-        // Score = (comments * 2) + (freshness) - (age penalty)
+        // Score = (views * 0.1) + (freshness)
         ->selectRaw('(
-            (SELECT COUNT(*) FROM comments WHERE article_id = articles.id) * 2 +
+            views_count * 0.1 +
             (CASE 
                 WHEN DATEDIFF(NOW(), updated_at) < 7 THEN 10
                 WHEN DATEDIFF(NOW(), updated_at) < 30 THEN 5
@@ -41,34 +39,33 @@ Route::get('/', function (Request $request) {
         ->orderBy('published_at', 'desc')
         ->take(4)
         ->get();
-    
+
     return view('home', compact('featuredArticle', 'articles'));
 });
 
 Route::get('/artikel', function (Request $request) {
     $baseQuery = Article::where('is_published', true);
-    
+
     // Filter by category if provided
     if ($request->has('category') && $request->category) {
         $baseQuery->where('category', $request->category);
     }
-    
+
     // Search functionality
     $searchQuery = $request->input('search');
     if ($searchQuery && strlen($searchQuery) >= 3) {
-        $baseQuery->where(function($query) use ($searchQuery) {
+        $baseQuery->where(function ($query) use ($searchQuery) {
             $query->where('title', 'LIKE', '%' . $searchQuery . '%')
-                  ->orWhere('abstract', 'LIKE', '%' . $searchQuery . '%')
-                  ->orWhere('content', 'LIKE', '%' . $searchQuery . '%');
+                ->orWhere('abstract', 'LIKE', '%' . $searchQuery . '%')
+                ->orWhere('content', 'LIKE', '%' . $searchQuery . '%');
         });
     }
-    
-    // 1. Top Article (Trending/Hot) - Artikel dengan engagement tertinggi dalam 30 hari terakhir
+
+    // 1. Top Article (Trending/Hot) - Artikel dengan views tertinggi dalam 30 hari terakhir
     $topArticle = (clone $baseQuery)
         ->where('updated_at', '>=', now()->subDays(30))
-        ->withCount('comments')
         ->selectRaw('articles.*, (
-            (SELECT COUNT(*) FROM comments WHERE article_id = articles.id) * 3 +
+            views_count * 0.2 +
             (CASE 
                 WHEN DATEDIFF(NOW(), updated_at) < 7 THEN 15
                 WHEN DATEDIFF(NOW(), updated_at) < 14 THEN 10
@@ -78,34 +75,34 @@ Route::get('/artikel', function (Request $request) {
         ) as engagement_score')
         ->orderBy('engagement_score', 'desc')
         ->first();
-    
+
     // 2. Recent Articles (3 artikel terbaru) - untuk sidebar
     $recentArticles = (clone $baseQuery)
-        ->when($topArticle, function($query) use ($topArticle) {
+        ->when($topArticle, function ($query) use ($topArticle) {
             return $query->where('id', '!=', $topArticle->id);
         })
         ->latest('published_at')
         ->take(3)
         ->get();
-    
+
     // 3. All Articles untuk pagination (exclude top & recent)
     $excludeIds = collect([$topArticle?->id])
         ->merge($recentArticles->pluck('id'))
         ->filter()
         ->toArray();
-    
+
     $articles = (clone $baseQuery)
         ->whereNotIn('id', $excludeIds)
         ->latest('published_at')
         ->paginate(9) // 9 artikel untuk grid (3x3)
         ->appends($request->only(['search', 'category'])); // Preserve search & category in pagination
-    
+
     // Count total results for search
     $totalResults = null;
     if ($searchQuery && strlen($searchQuery) >= 3) {
         $totalResults = (clone $baseQuery)->count();
     }
-    
+
     return view('articles.index', compact('topArticle', 'recentArticles', 'articles', 'searchQuery', 'totalResults'));
 });
 
@@ -114,19 +111,19 @@ Route::get('/artikel/{slug}', function ($slug) {
         ->where('slug', $slug)
         ->where('is_published', true)
         ->firstOrFail();
-    
+
     return view('articles.show', compact('article'));
-});
+})->middleware(\App\Http\Middleware\TrackArticleView::class);
 
 Route::post('/artikel/{slug}/comment', function (Request $request, $slug) {
     $article = Article::where('slug', $slug)->firstOrFail();
-    
+
     $article->allComments()->create([
         'user_id' => auth()->id(),
         'content' => $request->content,
         'approved' => false,
     ]);
-    
+
     return back()->with('success', 'Komentar berhasil dikirim dan menunggu persetujuan admin');
 })->middleware('auth');
 

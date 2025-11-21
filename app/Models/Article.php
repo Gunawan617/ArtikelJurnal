@@ -10,16 +10,35 @@ use Illuminate\Support\Str;
 class Article extends Model
 {
     protected $fillable = [
-        'title', 'slug', 'abstract', 'keywords', 'author', 'content',
-        'category', 'category_color',
-        'author_title', 'author_bio', 'author_photo', 'author_institution',
-        'editor_name', 'editor_title', 'reviewer_name', 'reviewer_title',
-        'pdf_path', 'image_path', 'published_at', 'is_published', 'user_id'
+        'title',
+        'slug',
+        'abstract',
+        'keywords',
+        'author',
+        'content',
+        'category',
+        'category_color',
+        'author_title',
+        'author_bio',
+        'author_photo',
+        'author_institution',
+        'editor_name',
+        'editor_title',
+        'reviewer_name',
+        'reviewer_title',
+        'pdf_path',
+        'image_path',
+        'published_at',
+        'is_published',
+        'is_featured',
+        'user_id',
+        'views_count'
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'is_published' => 'boolean',
+        'views_count' => 'integer',
     ];
 
     protected static function boot()
@@ -50,5 +69,13 @@ class Article extends Model
     public function allComments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Increment the views count for this article
+     */
+    public function incrementViews(): void
+    {
+        $this->increment('views_count');
     }
 }
