@@ -115,17 +115,17 @@ Route::get('/artikel/{slug}', function ($slug) {
     return view('articles.show', compact('article'));
 })->middleware(\App\Http\Middleware\TrackArticleView::class);
 
-Route::post('/artikel/{slug}/comment', function (Request $request, $slug) {
-    $article = Article::where('slug', $slug)->firstOrFail();
+// Route::post('/artikel/{slug}/comment', function (Request $request, $slug) {
+//     $article = Article::where('slug', $slug)->firstOrFail();
 
-    $article->allComments()->create([
-        'user_id' => auth()->id(),
-        'content' => $request->content,
-        'approved' => false,
-    ]);
+//     $article->allComments()->create([
+//         'user_id' => auth()->id(),
+//         'content' => $request->content,
+//         'approved' => false,
+//     ]);
 
-    return back()->with('success', 'Komentar berhasil dikirim dan menunggu persetujuan admin');
-})->middleware('auth');
+//     return back()->with('success', 'Komentar berhasil dikirim dan menunggu persetujuan admin');
+// })->middleware('auth');
 
 Route::get('/tentang', function () {
     return view('about');

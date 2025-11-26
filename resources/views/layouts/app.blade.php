@@ -126,8 +126,10 @@
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <a href="/" class="text-xl md:text-2xl font-bold text-blue-600">ScholarHub</a>
-
+                <!-- <a href="/" class="text-xl md:text-2xl font-bold text-blue-600">ScholarHub</a> -->
+                <a href="/" class="flex items-center gap-2">
+                    <img src="{{ asset('nfc.png') }}" alt="Nuansa Fajar Cemerlang" class="h-8 md:h-10 w-auto" />
+                </a>
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="/" class="text-gray-700 hover:text-blue-600 transition">Home</a>
